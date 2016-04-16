@@ -12,7 +12,7 @@ function promisifyGithubClient(client) {
 const compareCommitsByDate = (a, b) =>
   new Date(a.commit.committer.date) - new Date(b.commit.committer.date);
 
-const negate = f => {
+const reverseCmp = f => {
   return (...args) => -f(...args);
 };
 
@@ -61,7 +61,7 @@ async function revList(commitCache, reachableFrom, notReachableFrom) {
 
   const shas = Object.keys(keepShas).filter(sha => keepShas[sha]);
   const commits = await Promise.all(shas.map(sha => commitCache.get(sha)));
-  return commits.sort(negate(compareCommitsByDate));
+  return commits.sort(reverseCmp(compareCommitsByDate));
 }
 
 export class CommitFetcher {
