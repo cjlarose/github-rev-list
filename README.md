@@ -30,6 +30,10 @@ cf.getAllCommits({ user: 'home-assistant',
 });
 ```
 
+This will list all commits in the repo [`home-assistant/home-assistant`][ha] that are reachable (by following parent links) from commit `3bdf7ea`, but exclude those that are reachable from commit `29b6782`. This simulates a call to `git log 3bdf7ea ^29b6782` (or equivalently, `git log 29b6782..3bdf7ea`).
+
+[ha]: https://github.com/home-assistant/home-assistant
+
 ### Fetching all commits of a large pull request
 
 The [Github Pull Request API][pr-api] will return at most 250 commits. Using `github-rev-list`, however, you can retrieve the complete list of commits.
