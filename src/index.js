@@ -9,17 +9,19 @@ function promisifyGithubClient(client) {
   };
 }
 
+const compareCommitsByDate = (a, b) =>
+  new Date(a.commit.committer.date) - new Date(b.commit.committer.date);
+
+const negate = f => {
+  return (...args) => -f(...args);
+};
+
 async function revList(commitCache, reachableFrom, notReachableFrom) {
   const keepShas = {};
-  for (const commit of reachableFrom) {
-    keepShas[commit] = true;
-  }
-  for (const commit of notReachableFrom) {
-    keepShas[commit] = false;
-  }
+  for (const commit of reachableFrom) { keepShas[commit] = true; }
+  for (const commit of notReachableFrom) { keepShas[commit] = false; }
 
-  const pqueue = new PriorityQueue((a, b) =>
-    new Date(a.commit.committer.date) - new Date(b.commit.committer.date));
+  const pqueue = new PriorityQueue(compareCommitsByDate);
   const continueSearching = () =>
     new Promise(resolve => {
       pqueue.forEach(commit => {
@@ -57,7 +59,9 @@ async function revList(commitCache, reachableFrom, notReachableFrom) {
     }
   }
 
-  return keepShas;
+  const shas = Object.keys(keepShas).filter(sha => keepShas[sha]);
+  const commits = await Promise.all(shas.map(sha => commitCache.get(sha)));
+  return commits.sort(negate(compareCommitsByDate));
 }
 
 export class CommitFetcher {
