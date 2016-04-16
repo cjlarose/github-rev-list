@@ -9,7 +9,7 @@ function promisifyGithubClient(client) {
   };
 }
 
-export class CommitFetcher {
+class CommitFetcher {
   constructor(githubClient) {
     this.github = promisifyGithubClient(githubClient);
   }
@@ -29,3 +29,5 @@ export class CommitFetcher {
     });
   }
 }
+
+module.exports = CommitFetcher;
