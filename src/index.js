@@ -69,14 +69,18 @@ export class CommitFetcher {
     this.github = promisifyGithubClient(githubClient);
   }
 
-  getAllCommits(user, repo, number) {
+  revList(user, repo, reachableFrom, notReachableFrom) {
     const getCommitList = sha => this.github.getCommits({ user, repo, sha, per_page: 100 });
     const commitCache = new CommitCache(getCommitList);
+    return revList(commitCache, reachableFrom, notReachableFrom);
+  }
+
+  getAllCommits(user, repo, number) {
     return this.github.pullRequest({ user, repo, number })
     .then(pr => {
       const headSha = pr.head.sha;
       const baseSha = pr.base.sha;
-      return revList(commitCache, [headSha], [baseSha]);
+      return this.revList(user, repo, [headSha], [baseSha]);
     });
   }
 }
