@@ -10,30 +10,6 @@ Implementation of [`git rev-list`][rev-list] over the Github API.
 
 [node-github]: https://github.com/mikedeboer/node-github
 
-### Remote rev-list
-
-```javascript
-const GithubApi = require('github');
-const CommitFetcher = require('github-rev-list');
-
-const github = new GithubApi({ version: '3.0.0' });
-const cf = new CommitFetcher(github);
-
-cf.getAllCommits({ user: 'home-assistant',
-                   repo: 'home-assistant',
-                   reachableFrom: ['3bdf7eabbf2fb2ed05c6ec6bf96072a30060eee8'],
-                   notReachableFrom: ['29b6782b424f122d17988a20e405b45fb6cba003'] })
-.then(commits => {
-  for (const commit of commits) {
-    console.log(commit.sha);
-  }
-});
-```
-
-This will list all commits in the repo [`home-assistant/home-assistant`][ha] that are reachable (by following parent links) from commit `3bdf7ea`, but exclude those that are reachable from commit `29b6782`. This simulates a call to `git log 3bdf7ea ^29b6782` (or equivalently, `git log 29b6782..3bdf7ea`).
-
-[ha]: https://github.com/home-assistant/home-assistant
-
 ### Fetching all commits of a large pull request
 
 The [Github Pull Request API][pr-api] will return at most 250 commits. Using `github-rev-list`, however, you can retrieve the complete list of commits.
@@ -56,3 +32,27 @@ cf.getAllCommits({ user: 'home-assistant',
   }
 });
 ```
+
+### Remote `git log`
+
+```javascript
+const GithubApi = require('github');
+const CommitFetcher = require('github-rev-list');
+
+const github = new GithubApi({ version: '3.0.0' });
+const cf = new CommitFetcher(github);
+
+cf.getAllCommits({ user: 'home-assistant',
+                   repo: 'home-assistant',
+                   reachableFrom: ['3bdf7eabbf2fb2ed05c6ec6bf96072a30060eee8'],
+                   notReachableFrom: ['29b6782b424f122d17988a20e405b45fb6cba003'] })
+.then(commits => {
+  for (const commit of commits) {
+    console.log(commit.sha);
+  }
+});
+```
+
+This will list all commits in the repo [`home-assistant/home-assistant`][ha] that are reachable (by following parent links) from commit `3bdf7ea`, but exclude those that are reachable from commit `29b6782`. This simulates a call to `git log 3bdf7ea ^29b6782` (or equivalently, `git log 29b6782..3bdf7ea`).
+
+[ha]: https://github.com/home-assistant/home-assistant
