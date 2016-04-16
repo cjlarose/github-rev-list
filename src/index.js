@@ -9,10 +9,22 @@ function promisifyGithubClient(client) {
   };
 }
 
-const compareCommitsByDate = (a, b) =>
-  new Date(a.commit.committer.date) - new Date(b.commit.committer.date);
+function compareCommitsByDate(a, b) {
+  return new Date(a.commit.committer.date) - new Date(b.commit.committer.date);
+}
 
-const reverseCmp = f => (...args) => -f(...args);
+function reverseCmp(f) {
+  return (...args) => -f(...args);
+}
+
+function inQueue(pqueue, sha) {
+  for (const commit of pqueue._elements) {
+    if (commit.sha === sha) {
+      return true;
+    }
+  }
+  return false;
+}
 
 async function revList(commitCache, reachableFrom, notReachableFrom) {
   const keepShas = {};
@@ -20,26 +32,14 @@ async function revList(commitCache, reachableFrom, notReachableFrom) {
   for (const commit of notReachableFrom) { keepShas[commit] = false; }
 
   const pqueue = new PriorityQueue(compareCommitsByDate);
-  const continueSearching = () =>
-    new Promise(resolve => {
-      for (const commit of pqueue._elements) {
-        if (keepShas[commit.sha] === true) {
-          resolve(true);
-          return;
-        }
+  const continueSearching = () => {
+    for (const commit of pqueue._elements) {
+      if (keepShas[commit.sha] === true) {
+        return true;
       }
-      resolve(false);
-    });
-  const inQueue = (sha) =>
-    new Promise(resolve => {
-      for (const commit of pqueue._elements) {
-        if (commit.sha === sha) {
-          resolve(true);
-          return;
-        }
-      }
-      resolve(false);
-    });
+    }
+    return false;
+  };
 
   const startingShas = reachableFrom.concat(notReachableFrom);
   const seedCommits = await Promise.all(startingShas.map(sha => commitCache.get(sha)));
@@ -47,7 +47,7 @@ async function revList(commitCache, reachableFrom, notReachableFrom) {
     pqueue.enq(commit);
   }
 
-  while (await continueSearching()) {
+  while (continueSearching()) {
     const commit = pqueue.deq();
     const keepChild = keepShas[commit.sha];
 
@@ -55,7 +55,7 @@ async function revList(commitCache, reachableFrom, notReachableFrom) {
     for (const parent of parents) {
       if (!(parent.sha in keepShas)) { keepShas[parent.sha] = true; }
       if (!keepChild) { keepShas[parent.sha] = false; }
-      if (!await inQueue(parent.sha)) { pqueue.enq(parent); }
+      if (!inQueue(pqueue, parent.sha)) { pqueue.enq(parent); }
     }
   }
 
