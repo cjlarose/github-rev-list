@@ -12,9 +12,7 @@ function promisifyGithubClient(client) {
 const compareCommitsByDate = (a, b) =>
   new Date(a.commit.committer.date) - new Date(b.commit.committer.date);
 
-const reverseCmp = f => {
-  return (...args) => -f(...args);
-};
+const reverseCmp = f => (...args) => -f(...args);
 
 async function revList(commitCache, reachableFrom, notReachableFrom) {
   const keepShas = {};
