@@ -24,20 +24,22 @@ async function revList(commitCache, reachableFrom, notReachableFrom) {
   const pqueue = new PriorityQueue(compareCommitsByDate);
   const continueSearching = () =>
     new Promise(resolve => {
-      pqueue.forEach(commit => {
+      for (const commit of pqueue._elements) {
         if (keepShas[commit.sha] === true) {
           resolve(true);
+          return;
         }
-      });
+      }
       resolve(false);
     });
   const inQueue = (sha) =>
     new Promise(resolve => {
-      pqueue.forEach(commit => {
+      for (const commit of pqueue._elements) {
         if (commit.sha === sha) {
           resolve(true);
+          return;
         }
-      });
+      }
       resolve(false);
     });
 
