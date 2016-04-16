@@ -42,10 +42,10 @@ const CommitFetcher = require('github-rev-list');
 const github = new GithubApi({ version: '3.0.0' });
 const cf = new CommitFetcher(github);
 
-cf.getAllCommits({ user: 'home-assistant',
-                   repo: 'home-assistant',
-                   reachableFrom: ['3bdf7eabbf2fb2ed05c6ec6bf96072a30060eee8'],
-                   notReachableFrom: ['29b6782b424f122d17988a20e405b45fb6cba003'] })
+cf.revList({ user: 'home-assistant',
+             repo: 'home-assistant',
+             reachableFrom: ['3bdf7eabbf2fb2ed05c6ec6bf96072a30060eee8'],
+             notReachableFrom: ['29b6782b424f122d17988a20e405b45fb6cba003'] })
 .then(commits => {
   for (const commit of commits) {
     console.log(commit.sha);
