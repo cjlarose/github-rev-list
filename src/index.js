@@ -70,7 +70,7 @@ export class CommitFetcher {
   }
 
   getAllCommits(user, repo, number) {
-    const getCommitList = sha => this.github.getCommits({ user, repo, sha });
+    const getCommitList = sha => this.github.getCommits({ user, repo, sha, per_page: 100 });
     const commitCache = new CommitCache(getCommitList);
     return this.github.pullRequest({ user, repo, number })
     .then(pr => {
